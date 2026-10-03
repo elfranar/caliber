@@ -58,25 +58,41 @@ The API reference at `/docs` includes these routes:
 | `POST /api/telemetry/simulate-anomaly`, `/step`, `/reset` | Operate the telemetry simulator. |
 | `POST /api/agent/process`, `/api/deployment/toggle` | Optional local agent and deployment-mode toggle. |
 
-## Project Map
+## Project Structure & Tooling
 
-| Path | Responsibility |
+| Path / Tool | Responsibility |
 |---|---|
-| `run.py` | Launches FastAPI/Uvicorn on port 8000 and serves `static/`. |
-| `backend/main.py` | Registers the browser API, initializes guardrail/entity/graph/vector/scoring/HITL/telemetry components, and serves the static console. |
-| `backend/config.py` | Defines workspace/data paths and metadata constants. |
-| `backend/case1_ingestion.py` | Parses PDF/P&ID sources to Markdown with LlamaParse. |
-| `backend/dataset_catalog.py` | Defines the eight datasets and catalogs official source paths. |
-| `backend/vector_engine.py` | Approval-filtered source catalog and legacy/local search, including Pandas workbook rows. |
-| `backend/case1_agent.py`, `backend/case1_api.py`, `backend/case1_opl.py` | Approval-filtered Chroma semantic retrieval, optional Groq answer/OPL generation, and index synchronization. |
-| `backend/source_governance.py` | Persistent SME approval state shared by retrieval implementations. |
-| `backend/agent_core.py`, `backend/database.py` | Optional local synthesis and LlamaIndex/Chroma retrieval helper. |
-| `backend/domain_guardrail.py`, `backend/entity_extractor.py`, `backend/guardrails.py` | Query-domain checks, tag resolution, and intent classification. |
-| `backend/knowledge_graph.py`, `backend/scoring_fusion.py` | Topology traversal and confidence-score fusion. |
-| `backend/hitl_quarantine.py`, `backend/event_simulator.py` | Source-based conflict checks, SME decisions, and simulated telemetry. |
-| `backend/document_ingestion.py` | Extracts user-uploaded PDF/image/Excel content for upload and P&ID audit routes. |
-| `static/index.html`, `static/app.js`, `static/css/style.css` | Existing browser UI. Its assistant sends requests to `/api/query`. |
-| `requirements.txt`, `test_pipeline.py`, `.vscode/tasks.json` | Python dependencies, integration suite, and local run/test tasks. |
+| `__pycache__/` | Auto-generated Python bytecode caches for performance (ignored in git). |
+| `.vscode/` | IDE configurations (e.g., `tasks.json` for debugging). |
+| `.venv/` / `venv/` | Isolated Python virtual environment containing dependencies. |
+| `backend/` | Contains all Python modules (FastAPI server, vector engine, event simulator, case1 agent). |
+| `data/` | Stores raw PDFs, P&IDs, Excel maintenance logs, and the local ChromaDB semantic index. |
+| `postman/` | Developer API testing collections for verifying backend routes without UI. |
+| `static/` | Frontend Dashboard assets (HTML, JS, CSS) providing the Single Pane of Glass interface. |
+| `tests/` | Unit and integration testing scripts. |
+| `.gitignore` | Defines files to be excluded from GitHub (e.g., `.env`, `venv`). |
+| `app.py` | Application entry point handling port and host configuration for deployment. |
+| `README.md` | This file; containing architecture, map, and setup instructions. |
+| `render.yaml` | Infrastructure-as-Code for simple 1-click cloud deployment via Render.com. |
+| `requirements.txt` | Python library dependency list (FastAPI, Langchain, Uvicorn, etc). |
+| `run.py` | Local launcher script (calls `app.py`). |
+| `test_api.py`, `test_api_simple.py`, `test_pipeline.py` | Scripts to locally test backend functionality, RAG retrieval, and simulated endpoints. |
+
+## Alur Bisnis & Arsitektur Sistem (Workflow & Business Logic)
+
+**1. Tantangan Bisnis (Pain Points)**
+Teknisi membuang banyak waktu mencari informasi valid karena data tersebar: SOP di server, P&ID berbentuk gambar, riwayat maintenance di Excel. Fragmentasi ini berisiko menyebabkan keterlambatan penanganan dan kesalahan eksekusi.
+
+**2. Solusi Bisnis: Manufacturing Knowledge Hub (MKH)**
+- **Pemusatan Data:** Menyerap berbagai dokumen teknis menjadi satu *Knowledge Base* cerdas.
+- **AI Proaktif:** Teknisi bertanya menggunakan *natural language*. Jawaban AI selalu *traceable* (dilengkapi sumber asli dan *confidence score*).
+- **Failure Memory & Telemetry Push:** Sistem terhubung dengan sensor mesin secara virtual. Saat ada anomali tekanan, sistem otomatis menampilkan peringatan darurat dan riwayat kegagalan (RCA) di masa lalu.
+
+**3. Alur Kerja Teknis (Technical Workflow)**
+- **Data Ingestion:** File dipecah dan dikonversi menjadi vektor, lalu disimpan di **ChromaDB** lokal.
+- **Simulator Telemetri:** Skrip `event_simulator.py` memantau 8 sensor dataset. Jika aktif, akan mengirim *payload Failure Memory*.
+- **Semantic Search:** Saat teknisi bertanya, `case1_agent.py` merakit *prompt* dari 1) Pertanyaan, 2) Data ChromaDB, 3) Histori Excel, dan 4) Peringatan sensor aktif.
+- **Eksekusi LLM:** Groq LLM API membaca rakitan *prompt* dan mengembalikan jawaban faktual ke Dashboard (Vue/JS) secara *real-time*.
 
 # Casebook Mapping
 
