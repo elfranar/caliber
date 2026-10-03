@@ -1,0 +1,276 @@
+{
+  "plant_info": {
+    "company": "PT Chandra Asri Pacific Tbk",
+    "project": "SDK Polyolefin Expansion Project",
+    "plant_unit": "Linear Low Density Polyethylene (LLDPE) Unit",
+    "area": "1200 - Feed Preparation & Purification",
+    "functional_location": "TJC-LLD-1200-01"
+  },
+  "assets": {
+    "GA-1201A": {
+      "asset_tag": "GA-1201A",
+      "asset_name": "Hexane Feed Pump A",
+      "asset_type": "pump",
+      "equipment_id": "EQ-1000012011",
+      "floc": "TJC-LLD-1200-01",
+      "area": "Area 1200 - Feed Preparation & Purification",
+      "unit": "LLDPE Unit",
+      "criticality": "HIGH CRITICAL",
+      "pump_type": "Horizontal, End Suction, Single Stage (API 610 OH2)",
+      "model": "3x2x10 CDX-M",
+      "service": "Hexane feed transfer to 1st Polymerization Reactor DC-4501",
+      "design_data": {
+        "rated_flow": "45 m3/h",
+        "rated_head": "120 m",
+        "npsh_required": "3.5 m",
+        "differential_pressure": "8.6 bar",
+        "pumping_temp": "40 degC",
+        "specific_gravity": "0.66 (n-Hexane)",
+        "viscosity": "0.31 cP",
+        "casing_material": "ASTM A351 CF8M (SS316)",
+        "impeller_material": "ASTM A351 CF8M (SS316)",
+        "shaft_material": "AISI 4140",
+        "mechanical_seal": "John Crane T2100, Single",
+        "seal_flush_plan": "API Plan 11 + Plan 62 Quench",
+        "lubrication": "Oil Bath, ISO VG 68",
+        "coupling": "Flexible Spacer, Rexnord"
+      },
+      "driver_data": {
+        "output": "30 kW",
+        "poles": "2 Pole",
+        "speed": "2970 rpm",
+        "voltage": "380 V / 3 Ph / 50 Hz",
+        "rated_current": "56 A",
+        "enclosure": "TEFC IP55",
+        "area_classification": "Zone 2, IIA T3",
+        "weight_motor": "295 kg",
+        "frame": "IEC 200L"
+      },
+      "status": "OPERATIONAL",
+      "parameters": [
+        "PSLL-1201", "PT-1201", "PI-1201", "FSLL-1201", "FIT-1201", "FI-1201",
+        "VSHH-1201", "VT-1201", "TSHH-1201", "TT-1201", "MPR-1201", "HS-1201",
+        "PDI-1201", "ZSO-1201", "ZSO-1202"
+      ],
+      "upstream": ["12-T-01"],
+      "downstream": ["DC-4501"]
+    },
+    "GA-1201B": {
+      "asset_tag": "GA-1201B",
+      "asset_name": "Hexane Feed Pump B (Auto Standby)",
+      "asset_type": "pump",
+      "equipment_id": "EQ-1000012012",
+      "floc": "TJC-LLD-1200-01",
+      "area": "Area 1200 - Feed Preparation & Purification",
+      "unit": "LLDPE Unit",
+      "criticality": "HIGH CRITICAL",
+      "pump_type": "Horizontal, End Suction, Single Stage (API 610 OH2)",
+      "model": "3x2x10 CDX-M",
+      "service": "Identical standby hexane feed transfer to 1st Polymerization Reactor DC-4501",
+      "status": "STANDBY_READY",
+      "upstream": ["12-T-01"],
+      "downstream": ["DC-4501"]
+    },
+    "12-T-01": {
+      "asset_tag": "12-T-01",
+      "asset_name": "Hexane Storage Tank",
+      "asset_type": "tank",
+      "area": "Area 1200 - Feed Preparation & Purification",
+      "criticality": "Critical A",
+      "description": "Storage tank supplying n-hexane feed via 4-inch line to GA-1201A/B suction nozzles",
+      "status": "OPERATIONAL",
+      "upstream": [],
+      "downstream": ["GA-1201A", "GA-1201B"]
+    },
+    "DC-4501": {
+      "asset_tag": "DC-4501",
+      "asset_name": "1st Polymerization Reactor",
+      "asset_type": "reactor",
+      "area": "Area 4500 - Reaction Section",
+      "criticality": "HIGH CRITICAL",
+      "description": "Gas-phase fluidized bed reactor receiving continuous hexane carrier feed from GA-1201A/B",
+      "status": "OPERATIONAL",
+      "upstream": ["GA-1201A", "GA-1201B"],
+      "downstream": ["KC-4501"]
+    },
+    "KC-4501": {
+      "asset_tag": "KC-4501",
+      "asset_name": "Recycle Gas Compressor",
+      "asset_type": "compressor",
+      "area": "Gas Circulation Section",
+      "criticality": "HIGH CRITICAL",
+      "description": "Multi-stage centrifugal recycle gas compressor circulating unreacted ethylene from DC-4501",
+      "status": "OPERATIONAL",
+      "upstream": ["DC-4501"],
+      "downstream": []
+    },
+    "FV-1201": {
+      "asset_tag": "FV-1201",
+      "asset_name": "Minimum Flow Bypass Valve",
+      "asset_type": "valve",
+      "area": "Area 1200 - Feed Preparation & Purification",
+      "criticality": "Critical B",
+      "description": "Fail-open minimum flow control valve on 4-inch recirculation line back to pump suction",
+      "status": "OPERATIONAL",
+      "upstream": ["GA-1201A"],
+      "downstream": ["GA-1201A"]
+    },
+    "XV-1201": {
+      "asset_tag": "XV-1201",
+      "asset_name": "Suction Emergency Shutoff Valve",
+      "asset_type": "valve",
+      "area": "Area 1200 - Feed Preparation & Purification",
+      "criticality": "Critical A",
+      "description": "Automated shutoff valve on suction header interlocked with SEQ-1201 start permissive",
+      "status": "OPERATIONAL"
+    }
+  },
+  "parameters": {
+    "PSLL-1201": {
+      "tag_id": "PSLL-1201",
+      "parameter_name": "Suction Pressure LOW-LOW",
+      "parent_asset": "GA-1201A",
+      "unit": "barg",
+      "normal_setpoint": 1.20,
+      "low_alarm": 0.80,
+      "trip_limit": 0.50,
+      "voting": "2oo3",
+      "current_value": 1.18,
+      "source_system": "TJC-LLD-IL-GA-1201A Interlock Matrix (SEQ-1201)",
+      "cause_id": "T1",
+      "trip_actions": ["EFF-1 (Trip Pump GA-1201A)", "EFF-2 (Close XV-1201)", "EFF-4 (Annunciate DCS)", "EFF-5 (Start GA-1201B)"],
+      "description": "Suction pressure low-low interlock protecting pump impeller against cavitation"
+    },
+    "PT-1201": {
+      "tag_id": "PT-1201",
+      "parameter_name": "Suction Pressure Transmitter",
+      "parent_asset": "GA-1201A",
+      "unit": "barg",
+      "normal_setpoint": 1.20,
+      "trip_limit": 0.50,
+      "current_value": 1.18,
+      "source_system": "Yokogawa CENTUM VP DCS",
+      "description": "Continuous electronic suction pressure measurement on inlet line"
+    },
+    "FSLL-1201": {
+      "tag_id": "FSLL-1201",
+      "parameter_name": "Discharge Flow LOW-LOW (Minimum Flow)",
+      "parent_asset": "GA-1201A",
+      "unit": "m3/h",
+      "normal_setpoint": 45.0,
+      "trip_limit": 9.0,
+      "time_delay": "30 s",
+      "voting": "1oo1",
+      "cause_id": "T2",
+      "trip_actions": ["EFF-1 (Trip Pump GA-1201A)", "EFF-3 (Open Min-Flow FV-1201)", "EFF-4 (Annunciate DCS)", "EFF-5 (Start GA-1201B)"],
+      "description": "Minimum flow protection to prevent deadheading and thermal expansion"
+    },
+    "VSHH-1201": {
+      "tag_id": "VSHH-1201",
+      "parameter_name": "Bearing Vibration HIGH-HIGH",
+      "parent_asset": "GA-1201A",
+      "unit": "mm/s RMS",
+      "normal_setpoint": 2.2,
+      "trip_limit": 7.1,
+      "voting": "1oo2",
+      "cause_id": "T3",
+      "trip_actions": ["EFF-1 (Trip Pump GA-1201A)", "EFF-2 (Close XV-1201)", "EFF-4 (Annunciate DCS)"],
+      "description": "Bearing vibration trip protection"
+    },
+    "TSHH-1201": {
+      "tag_id": "TSHH-1201",
+      "parameter_name": "Bearing Temperature HIGH-HIGH",
+      "parent_asset": "GA-1201A",
+      "unit": "degC",
+      "normal_setpoint": 50.0,
+      "trip_limit": 95.0,
+      "voting": "1oo1",
+      "cause_id": "T4",
+      "trip_actions": ["EFF-1 (Trip Pump GA-1201A)", "EFF-2 (Close XV-1201)", "EFF-4 (Annunciate DCS)"],
+      "description": "Bearing overtemperature trip protection"
+    },
+    "MPR-1201": {
+      "tag_id": "MPR-1201",
+      "parameter_name": "Motor Overload / Electrical Fault",
+      "parent_asset": "GA-1201A",
+      "unit": "relay",
+      "trip_limit": "MPR pickup",
+      "voting": "1oo1",
+      "cause_id": "T5",
+      "trip_actions": ["EFF-1", "EFF-2", "EFF-4", "EFF-5"],
+      "description": "Electrical protection relay trip"
+    },
+    "HS-1201": {
+      "tag_id": "HS-1201",
+      "parameter_name": "Local / DCS Emergency Stop",
+      "parent_asset": "GA-1201A",
+      "unit": "switch",
+      "voting": "1oo1",
+      "cause_id": "T6",
+      "trip_actions": ["EFF-1", "EFF-2", "EFF-4"],
+      "description": "Manual emergency stop push button"
+    },
+    "PDI-1201": {
+      "tag_id": "PDI-1201",
+      "parameter_name": "Seal Flush Differential Pressure Indicator",
+      "parent_asset": "GA-1201A",
+      "unit": "bar",
+      "permissive_limit": "> 1.5 bar",
+      "description": "Start permissive #2: Seal flush Plan 11 established before pump start"
+    },
+    "ZSO-1201": {
+      "tag_id": "ZSO-1201",
+      "parameter_name": "Suction Valve Open Position Switch",
+      "parent_asset": "GA-1201A",
+      "unit": "switch",
+      "permissive_limit": "OPEN",
+      "description": "Start permissive #1: Suction valve XV-1201 100% open"
+    },
+    "ZSO-1202": {
+      "tag_id": "ZSO-1202",
+      "parameter_name": "Min-Flow Valve Open Position Switch",
+      "parent_asset": "GA-1201A",
+      "unit": "switch",
+      "permissive_limit": "OPEN",
+      "description": "Start permissive #3: Minimum flow recirculation line open"
+    },
+    "VT-1201": {
+      "tag_id": "VT-1201",
+      "parameter_name": "Continuous Vibration Transmitter",
+      "parent_asset": "GA-1201A",
+      "unit": "mm/s RMS",
+      "normal_setpoint": 2.2,
+      "low_alarm": 4.5,
+      "trip_limit": 7.1,
+      "source_system": "OPL-GA-1201A-07 / DCS",
+      "description": "Daily PdM route monitoring; warning at 4.5 mm/s, VSHH-1201 trip at 7.1 mm/s"
+    },
+    "TI-1201": {
+      "tag_id": "TI-1201",
+      "parameter_name": "Bearing Temperature Indicator",
+      "parent_asset": "GA-1201A",
+      "unit": "degC",
+      "normal_setpoint": 50.0,
+      "trip_limit": 95.0,
+      "source_system": "OPL-GA-1201A-07 / DCS",
+      "description": "Correlated bearing temperature reading to diagnose misalignment or outer race spalling"
+    },
+    "RO-1201": {
+      "tag_id": "RO-1201",
+      "parameter_name": "API Plan 11 Restriction Orifice",
+      "parent_asset": "GA-1201A",
+      "unit": "orifice",
+      "source_system": "OPL-GA-1201A-03 / OPL-GA-1201A-06",
+      "description": "Flush orifice on Plan 11 seal line; risk of plugging from polymer fines causing seal dry-run"
+    },
+    "FIC-1201": {
+      "tag_id": "FIC-1201",
+      "parameter_name": "Discharge Flow Indicating Controller",
+      "parent_asset": "GA-1201A",
+      "unit": "ton/h",
+      "normal_setpoint": 35.0,
+      "source_system": "Yokogawa CENTUM VP DCS",
+      "description": "Flow controller on GA-1201A discharge to DC-4501 polymerization reactor"
+    }
+  }
+}

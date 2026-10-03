@@ -1,0 +1,250 @@
+{
+  "nodes": [
+    {
+      "id": "12-T-01",
+      "label": "12-T-01",
+      "name": "Hexane Storage Tank",
+      "type": "asset",
+      "asset_type": "tank",
+      "criticality": "Critical A",
+      "color": "#3B82F6"
+    },
+    {
+      "id": "GA-1201A",
+      "label": "GA-1201A",
+      "name": "Hexane Feed Pump A (30 kW)",
+      "type": "asset",
+      "asset_type": "pump",
+      "criticality": "HIGH CRITICAL",
+      "color": "#0d9488"
+    },
+    {
+      "id": "GA-1201B",
+      "label": "GA-1201B",
+      "name": "Hexane Feed Pump B (Auto Standby)",
+      "type": "asset",
+      "asset_type": "pump",
+      "criticality": "HIGH CRITICAL",
+      "color": "#0d9488"
+    },
+    {
+      "id": "DC-4501",
+      "label": "DC-4501",
+      "name": "1st Polymerization Reactor",
+      "type": "asset",
+      "asset_type": "reactor",
+      "criticality": "HIGH CRITICAL",
+      "color": "#3B82F6"
+    },
+    {
+      "id": "KC-4501",
+      "label": "KC-4501",
+      "name": "Recycle Gas Compressor",
+      "type": "asset",
+      "asset_type": "compressor",
+      "criticality": "HIGH CRITICAL",
+      "color": "#3B82F6"
+    },
+    {
+      "id": "FV-1201",
+      "label": "FV-1201",
+      "name": "Min-Flow Bypass Valve (Fail-Open)",
+      "type": "asset",
+      "asset_type": "valve",
+      "criticality": "Critical B",
+      "color": "#3B82F6"
+    },
+    {
+      "id": "PSLL-1201",
+      "label": "PSLL-1201 (<0.5 barg, 2oo3)",
+      "name": "Suction Pressure LOW-LOW Trip",
+      "type": "parameter",
+      "unit": "barg",
+      "trip": 0.50,
+      "color": "#EF4444"
+    },
+    {
+      "id": "FSLL-1201",
+      "label": "FSLL-1201 (<9 m3/h, 30s)",
+      "name": "Discharge Flow LOW-LOW Trip",
+      "type": "parameter",
+      "unit": "m3/h",
+      "trip": 9.0,
+      "color": "#EF4444"
+    },
+    {
+      "id": "PT-1201",
+      "label": "PT-1201 (1.18 barg)",
+      "name": "Suction Pressure Transmitter",
+      "type": "parameter",
+      "unit": "barg",
+      "normal": 1.20,
+      "trip": 0.50,
+      "color": "#F59E0B"
+    },
+    {
+      "id": "VSHH-1201",
+      "label": "VSHH-1201 (>7.1 mm/s RMS)",
+      "name": "Bearing Vibration High-High Trip",
+      "type": "parameter",
+      "unit": "mm/s RMS",
+      "trip": 7.1,
+      "color": "#EF4444"
+    },
+    {
+      "id": "VT-1201",
+      "label": "VT-1201 (Vibration Sensor)",
+      "name": "Continuous Vibration Transmitter",
+      "type": "parameter",
+      "unit": "mm/s RMS",
+      "normal": 2.2,
+      "alarm": 4.5,
+      "trip": 7.1,
+      "color": "#F59E0B"
+    },
+    {
+      "id": "TJC-LLD-IL-GA-1201A",
+      "label": "Interlock Matrix SEQ-1201",
+      "name": "Cause/Effect Matrix & Start Permissives (Rev 3)",
+      "type": "document",
+      "doc_type": "interlock_matrix",
+      "version": "Rev 3.0",
+      "approval_status": "approved",
+      "color": "#64748B"
+    },
+    {
+      "id": "TJC-LLD-DS-GA-1201A",
+      "label": "Datasheet GA-1201A Rev 3",
+      "name": "Centrifugal Pump Data Sheet (API 610 OH2)",
+      "type": "document",
+      "doc_type": "datasheet",
+      "version": "Rev 3.0",
+      "approval_status": "approved",
+      "color": "#64748B"
+    },
+    {
+      "id": "TJC-LLD-PID-1201",
+      "label": "P&ID TJC-LLD-PID-1201",
+      "name": "P&ID Hexane Feed Pump Station (Rev 2)",
+      "type": "document",
+      "doc_type": "pid",
+      "version": "Rev 2.0",
+      "approval_status": "approved",
+      "color": "#64748B"
+    },
+    {
+      "id": "OPL-GA-1201A-01",
+      "label": "OPL-01: Seal Plan 11/62 Flush",
+      "name": "OPL: Mechanical Seal Plan 11/62 Flush & Leak Inspection",
+      "type": "document",
+      "doc_type": "one_point_lesson",
+      "version": "Sheet 1 of 1",
+      "approval_status": "approved",
+      "color": "#10B981"
+    },
+    {
+      "id": "OPL-GA-1201A-02",
+      "label": "OPL-02: Oil Bath & Greasing",
+      "name": "OPL: Bearing Oil Bath Level & Greasing",
+      "type": "document",
+      "doc_type": "one_point_lesson",
+      "version": "Sheet 1 of 1",
+      "approval_status": "approved",
+      "color": "#10B981"
+    },
+    {
+      "id": "OPL-GA-1201A-03",
+      "label": "OPL-03: Laser Alignment",
+      "name": "OPL: Pump-Motor Alignment Check (Laser)",
+      "type": "document",
+      "doc_type": "one_point_lesson",
+      "version": "Sheet 1 of 1",
+      "approval_status": "approved",
+      "color": "#10B981"
+    },
+    {
+      "id": "OPL-GA-1201A-04",
+      "label": "OPL-04: Suction Strainer Cleaning",
+      "name": "OPL: Suction Strainer ST-1201 Cleaning & DP Check",
+      "type": "document",
+      "doc_type": "one_point_lesson",
+      "version": "Sheet 1 of 1",
+      "approval_status": "approved",
+      "color": "#10B981"
+    },
+    {
+      "id": "OPL-GA-1201A-05",
+      "label": "OPL-05: Cold vs Hot Alignment",
+      "name": "OPL: Cold Alignment vs Hot Check for Hexane Service",
+      "type": "document",
+      "doc_type": "one_point_lesson",
+      "version": "Sheet 1 of 1",
+      "approval_status": "approved",
+      "color": "#10B981"
+    },
+    {
+      "id": "OPL-GA-1201A-06",
+      "label": "OPL-06: Start-Up & Priming",
+      "name": "OPL: Start-Up & Priming Procedure GA-1201A",
+      "type": "document",
+      "doc_type": "one_point_lesson",
+      "version": "Sheet 1 of 1",
+      "approval_status": "approved",
+      "color": "#10B981"
+    },
+    {
+      "id": "OPL-GA-1201A-07",
+      "label": "OPL-07: Vibration Trend Monitoring",
+      "name": "OPL: Vibration Trend Monitoring & Alarm Response",
+      "type": "document",
+      "doc_type": "one_point_lesson",
+      "version": "Sheet 1 of 1",
+      "approval_status": "approved",
+      "color": "#10B981"
+    },
+    {
+      "id": "INC-2025-0814",
+      "label": "RCA: Strainer Choking & Seal Leak",
+      "name": "Failure Memory: GA-1201A Cavitation & Seal Rupture",
+      "type": "incident",
+      "incident_id": "INC-2025-0814",
+      "root_cause": "Inlet strainer choked, dropping PT-1201 below 0.50 barg and tripping GA-1201A on PSLL-1201",
+      "color": "#10B981"
+    },
+    {
+      "id": "SME-BUDI",
+      "label": "Ir. Budi Santoso (SME)",
+      "name": "Lead Reliability Specialist",
+      "type": "person",
+      "color": "#8B5CF6"
+    }
+  ],
+  "edges": [
+    { "source": "12-T-01", "target": "GA-1201A", "type": "FEEDS", "category": "topological" },
+    { "source": "12-T-01", "target": "GA-1201B", "type": "FEEDS", "category": "topological" },
+    { "source": "GA-1201A", "target": "DC-4501", "type": "FEEDS", "category": "topological" },
+    { "source": "GA-1201B", "target": "DC-4501", "type": "FEEDS", "category": "topological" },
+    { "source": "DC-4501", "target": "KC-4501", "type": "FEEDS", "category": "topological" },
+    { "source": "FV-1201", "target": "GA-1201A", "type": "PART_OF", "category": "topological" },
+    { "source": "GA-1201A", "target": "PSLL-1201", "type": "HAS_PARAMETER", "category": "administrative" },
+    { "source": "GA-1201A", "target": "FSLL-1201", "type": "HAS_PARAMETER", "category": "administrative" },
+    { "source": "GA-1201A", "target": "PT-1201", "type": "HAS_PARAMETER", "category": "administrative" },
+    { "source": "GA-1201A", "target": "VSHH-1201", "type": "HAS_PARAMETER", "category": "administrative" },
+    { "source": "GA-1201A", "target": "VT-1201", "type": "HAS_PARAMETER", "category": "administrative" },
+    { "source": "GA-1201A", "target": "TJC-LLD-IL-GA-1201A", "type": "DESCRIBED_BY", "category": "administrative" },
+    { "source": "GA-1201A", "target": "TJC-LLD-DS-GA-1201A", "type": "DESCRIBED_BY", "category": "administrative" },
+    { "source": "GA-1201A", "target": "TJC-LLD-PID-1201", "type": "DESCRIBED_BY", "category": "administrative" },
+    { "source": "GA-1201A", "target": "OPL-GA-1201A-01", "type": "DESCRIBED_BY", "category": "administrative" },
+    { "source": "GA-1201A", "target": "OPL-GA-1201A-02", "type": "DESCRIBED_BY", "category": "administrative" },
+    { "source": "GA-1201A", "target": "OPL-GA-1201A-03", "type": "DESCRIBED_BY", "category": "administrative" },
+    { "source": "GA-1201A", "target": "OPL-GA-1201A-04", "type": "DESCRIBED_BY", "category": "administrative" },
+    { "source": "GA-1201A", "target": "OPL-GA-1201A-05", "type": "DESCRIBED_BY", "category": "administrative" },
+    { "source": "GA-1201A", "target": "OPL-GA-1201A-06", "type": "DESCRIBED_BY", "category": "administrative" },
+    { "source": "GA-1201A", "target": "OPL-GA-1201A-07", "type": "DESCRIBED_BY", "category": "administrative" },
+    { "source": "OPL-GA-1201A-03", "target": "VSHH-1201", "type": "DESCRIBED_BY", "category": "semantic" },
+    { "source": "OPL-GA-1201A-07", "target": "VSHH-1201", "type": "DESCRIBED_BY", "category": "semantic" },
+    { "source": "OPL-GA-1201A-07", "target": "VT-1201", "type": "DESCRIBED_BY", "category": "semantic" },
+    { "source": "GA-1201A", "target": "INC-2025-0814", "type": "HAS_INCIDENT", "category": "semantic" },
+    { "source": "INC-2025-0814", "target": "SME-BUDI", "type": "AUTHORED_BY", "category": "administrative" }
+  ]
+}

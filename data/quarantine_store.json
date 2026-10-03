@@ -1,0 +1,53 @@
+[
+  {
+    "conflict_id": "CONF-PID-001",
+    "source_system": "P&ID Ingestion Engine vs Datasheet Cross-Reference",
+    "document_ref": "P&ID Drawing Title Block vs TJC-LLD-DS-GA-1201A Note 1",
+    "conflict_type": "Missing / Placeholder Drawing Number",
+    "severity": "HIGH",
+    "detected_at": "2026-03-20T09:15:00Z",
+    "issue_description": "P&ID schematic title block carries placeholder 'TJC-LLD-PID-XXXX' while Datasheet and GA drawing explicitly cite certified document number 'TJC-LLD-PID-1201'.",
+    "quarantined_payload": {
+      "tag": "GA-1201A",
+      "extracted_drawing_no": "TJC-LLD-PID-XXXX",
+      "canonical_expected_no": "TJC-LLD-PID-1201"
+    },
+    "status": "QUARANTINED",
+    "assigned_sme": "Ir. Hendra Gunawan (Lead Engineering)",
+    "resolution_notes": null
+  },
+  {
+    "conflict_id": "CONF-SEAL-002",
+    "source_system": "P&ID Drawing Annotation OCR vs Datasheet Specification",
+    "document_ref": "P&ID Detail Box 'API SEAL FLUSH PLANS' vs TJC-LLD-DS-GA-1201A",
+    "conflict_type": "Typographical / Nomenclature Contradiction",
+    "severity": "MEDIUM",
+    "detected_at": "2026-03-21T11:40:00Z",
+    "issue_description": "P&ID seal flush schematic box cites 'API PLAN II + PLAN 62' (Roman numeral typo), contradicting Datasheet specification 'API Plan 11 + Plan 62 Quench'.",
+    "quarantined_payload": {
+      "tag": "GA-1201A",
+      "drawing_text": "API PLAN II + PLAN 62",
+      "datasheet_spec": "API Plan 11 + Plan 62 Quench"
+    },
+    "status": "QUARANTINED",
+    "assigned_sme": "Ir. Budi Santoso (Lead Reliability)",
+    "resolution_notes": null
+  },
+  {
+    "conflict_id": "CONF-VOTE-003",
+    "source_system": "Safety Instrumented System (SIS) Logic vs SAP PM Work Order",
+    "document_ref": "TJC-LLD-IL-GA-1201A (Cause T1) vs WO-9901428",
+    "conflict_type": "Interlock Voting Discrepancy (2oo3 vs 1oo1)",
+    "severity": "HIGH",
+    "detected_at": "2026-03-22T14:30:00Z",
+    "issue_description": "Certified Cause & Effect matrix specifies 2oo3 voting for PSLL-1201 suction trip, but maintenance work order draft recorded sensor bypass as 1oo1 single channel.",
+    "quarantined_payload": {
+      "tag": "PSLL-1201",
+      "certified_voting": "2oo3",
+      "unverified_field_record": "1oo1"
+    },
+    "status": "QUARANTINED",
+    "assigned_sme": "Ir. M. Hidayat (Chief Process Safety)",
+    "resolution_notes": null
+  }
+]

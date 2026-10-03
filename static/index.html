@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manufacturing Knowledge Hub - Chandra Asri</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    };
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Marked.js for Markdown Parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body class="min-h-screen flex flex-col overflow-x-hidden">
+
+  <!-- Full-Window Global Drag & Drop Overlay -->
+  <div id="global-drag-overlay" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex flex-col items-center justify-center border-4 border-dashed border-sky-400 p-8 text-center pointer-events-none transition-all">
+    <div class="w-20 h-20 rounded-3xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sky-400 mb-4 animate-bounce shadow-lg shadow-sky-500/20">
+      <i data-lucide="upload-cloud" class="w-10 h-10"></i>
+    </div>
+    <h3 class="text-xl md:text-2xl font-extrabold text-white tracking-tight">Drop a Document or Image Here</h3>
+    <p class="text-xs md:text-sm text-sky-300 max-w-md mt-2">
+      Supports P&amp;ID images, OPL inspection photos (.png, .jpg), and technical documents (.pdf).
+    </p>
+  </div>
+  <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center p-6 isolate overflow-hidden" style="background-color: var(--bg-page); background-image: var(--bg-page-gradient);">
+    <canvas id="login-water-canvas" class="absolute inset-0 z-0 h-full w-full" aria-hidden="true"></canvas>
+
+    <div class="login-glass-card relative z-10 w-full max-w-xl p-8 md:p-10 border app-border space-y-8 shadow-xl">
+      
+      <!-- Brand & Header with Official Chandra Asri Logo -->
+      <div class="text-center space-y-3">
+        <div class="login-logo inline-flex items-center justify-center w-16 h-16 rounded-full overflow-hidden shadow-md mb-1 border app-border bg-white/10">
+          <img src="assets/chandra_asri_logo.png" alt="Chandra Asri Logo" class="w-full h-full object-cover" />
+        </div>
+        <h1 class="text-2xl md:text-3xl font-extrabold app-text-primary tracking-tight">
+          Manufacturing Knowledge Hub
+        </h1>
+        <p class="text-sm app-text-muted max-w-md mx-auto">
+          PT Chandra Asri Pacific Tbk &bull; Enterprise Petrochemical Intelligence Portal
+        </p>
+      </div>
+
+      <!-- Credentials Login -->
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold app-text-secondary mb-1">Employee ID / Email</label>
+          <input type="text" id="login-id" class="w-full dcs-input rounded-xl px-4 py-2.5 text-sm app-text-primary transition" autocomplete="username" placeholder="Employee ID or corporate email" required />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold app-text-secondary mb-1">Security Token / Password</label>
+          <input type="password" id="login-pass" class="w-full dcs-input rounded-xl px-4 py-2.5 text-sm app-text-primary transition" autocomplete="current-password" placeholder="Password" required />
+        </div>
+        <button id="direct-login-btn" class="login-submit-btn w-full pro-btn-primary py-3 rounded-xl text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-sm">
+          <i data-lucide="lock" class="w-4 h-4"></i> Enter Knowledge Hub
+        </button>
+      </div>
+
+      <!-- Security Stamp -->
+      <div class="pt-2 text-center text-xs app-text-muted flex items-center justify-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+        <span>Air-Gapped Petrochemical Network &bull; Zero Public Cloud Data Transit</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====================================================================== -->
+  <!-- 2. MAIN APPLICATION (POST-LOGIN INTERFACE)                             -->
+  <!-- ====================================================================== -->
+  <div id="main-app" class="hidden flex-1 flex flex-col h-screen max-h-screen overflow-hidden">
+
+    <!-- Transparent Top App Bar (Clean, uncluttered, responsive background) -->
+    <header class="transparent-header shrink-0 z-40 px-6 py-2.5 flex items-center justify-between border-b app-border">
+      
+      <!-- Left: Logo, Title & Back Navigation -->
+      <div class="flex items-center space-x-3">
+        <!-- Back Button (Hidden on Landing, Visible in RAG Chat or Sub-views) -->
+        <button id="back-to-home-btn" class="hidden items-center gap-1.5 px-3 py-1.5 rounded-full pro-btn-secondary text-xs font-semibold transition shadow-sm" title="Back to Search Home">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          <span>Back to Search</span>
+        </button>
+
+        <!-- Official Chandra Asri Logo & Name -->
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="backToHome()">
+          <div class="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 shadow-sm border app-border bg-white/10">
+            <img src="assets/chandra_asri_logo.png" alt="Chandra Asri" class="w-full h-full object-cover" />
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold app-text-primary text-base tracking-tight">Manufacturing Knowledge Hub</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full pro-badge font-semibold font-mono">PE Train A</span>
+            </div>
+            <p class="text-[11px] app-text-muted">PT Chandra Asri Pacific Tbk</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: User Profile & Logout -->
+      <div class="flex items-center space-x-2.5">
+        <div class="flex items-center space-x-2 pl-2">
+          <div class="w-8 h-8 rounded-full pro-badge font-bold font-mono text-xs flex items-center justify-center" id="user-avatar">
+            PE
+          </div>
+          <div class="hidden sm:block text-left">
+            <div class="text-xs font-bold app-text-primary leading-tight" id="user-name-display">Plant Engineer</div>
+            <div class="text-[10px] app-text-muted leading-tight" id="user-role-display">Authenticated User</div>
+          </div>
+          <button id="logout-btn" class="app-text-muted hover:app-text-primary p-1.5 rounded-lg hover:bg-slate-500/10 transition" title="Sign Out">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-[calc(100vh-62px)] overflow-hidden relative">
+
+      <!-- ================================================================ -->
+      <!-- TAB 1: SEARCH & CONVERSATION FEED (Primary View)                -->
+      <!-- ================================================================ -->
+      <div id="tab-assistant" class="tab-content active flex-1 flex flex-col h-full overflow-hidden relative">
+        
+        <!-- Results / Conversation Feed (Scrollable in chat mode) -->
+        <div id="results-feed" class="hidden flex-1 overflow-y-auto p-4 md:p-8 space-y-6 w-full pb-8">
+          <!-- Turns appended here dynamically -->
+        </div>
+
+        <!-- Hero Landing Wrapper (Centered Vertically & Horizontally) -->
+        <div id="hero-wrapper" class="flex-1 flex flex-col items-center justify-center p-6 text-center max-w-3xl mx-auto w-full my-auto transition-all duration-300">
+          
+          <div class="space-y-3 mb-8" id="hero-header-text">
+            <h2 class="text-3xl md:text-5xl font-extrabold app-text-primary tracking-tight">
+              Let's jump in, <span id="hero-user-name">Engineer</span>
+            </h2>
+            <p class="text-sm md:text-base app-text-muted max-w-xl mx-auto">
+              Ask technical questions, audit P&amp;ID schematics, and trace physical plant telemetry.
+            </p>
+          </div>
+
+          <!-- The Floating Ask Bar Container -->
+          <div class="w-full max-w-2xl relative" id="ask-bar-container">
+            <div class="gemini-search-bar p-2 pl-3 flex items-center gap-2 relative">
+              
+              <!-- Image/Document Attachment Button & Hidden File Input -->
+              <div class="relative flex-shrink-0">
+                <label for="image-file-input" id="image-attach-label" class="w-8 h-8 rounded-full hover:bg-slate-500/10 app-text-muted hover:app-text-primary flex items-center justify-center transition cursor-pointer" title="Upload a File or Image from Your Computer">
+                  <i data-lucide="paperclip" class="w-4 h-4 pointer-events-none"></i>
+                </label>
+                <input type="file" id="image-file-input" class="sr-only" accept="image/*,.pdf,.docx,.xlsx,.xlsm,.zip,.txt,.csv,.md" />
+              </div>
+
+              <!-- Attached File / Image Preview Chip (Initially Hidden) -->
+              <div id="image-preview-chip" class="hidden items-center gap-1.5 px-2 py-1 pro-badge rounded-lg text-xs flex-shrink-0">
+                <img id="image-preview-thumb" src="" alt="preview" class="w-5 h-5 object-cover rounded border app-border hidden" />
+                <span id="image-preview-icon" class="w-5 h-5 rounded pro-badge flex items-center justify-center text-[10px] font-mono font-bold">DOC</span>
+                <span id="image-preview-name" class="font-mono text-[10px] app-text-primary max-w-[110px] truncate">file</span>
+                <button type="button" id="remove-image-btn" class="app-text-muted hover:app-text-primary p-0.5" title="Remove attachment">
+                  <i data-lucide="x" class="w-3 h-3"></i>
+                </button>
+              </div>
+
+              <!-- Search Input -->
+              <input
+                type="text"
+                id="query-input"
+                class="w-full bg-transparent text-sm md:text-base app-text-primary placeholder:text-slate-400 focus:outline-none px-2"
+                placeholder="Ask a technical question or attach a P&amp;ID/document..."
+                value=""
+                autocomplete="off"
+              />
+
+              <!-- Right Actions: mic and send -->
+              <div class="flex items-center space-x-1.5 pr-1 flex-shrink-0">
+                <!-- Microphone Button (Web Speech API) -->
+                <button id="mic-btn" class="w-9 h-9 rounded-full hover:bg-slate-500/10 app-text-muted hover:app-text-primary flex items-center justify-center transition" title="Voice Search (English)">
+                  <i data-lucide="mic" class="w-4 h-4"></i>
+                </button>
+
+                <!-- Submit Button -->
+                <button id="run-query-btn" class="w-9 h-9 rounded-full pro-btn-primary flex items-center justify-center transition shadow-sm cursor-pointer" title="Submit Question">
+                  <i data-lucide="arrow-up" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Listening Toast for Voice Search -->
+            <div id="mic-status-toast" class="hidden absolute -top-10 left-1/2 -translate-x-1/2 px-3.5 py-1 pro-badge rounded-full text-xs font-mono flex items-center gap-2 shadow-md">
+              <span class="w-2 h-2 rounded-full bg-current animate-ping"></span>
+              <span>Listening... Speak your technical query</span>
+            </div>
+          </div>
+
+          <div class="w-full max-w-2xl relative z-20 pt-3 text-left" id="supporting-datasets-control">
+            <details id="dataset-picker" class="relative">
+              <summary id="dataset-picker-summary" class="list-none cursor-pointer dcs-panel border app-border rounded-xl px-3 py-2.5 flex items-center justify-between gap-3 shadow-sm">
+                <span class="flex items-center gap-2 min-w-0">
+                  <i data-lucide="database" class="w-4 h-4 app-text-secondary shrink-0"></i>
+                  <span class="text-[10px] app-text-muted uppercase font-mono shrink-0">Supporting Plant Datasets</span>
+                  <span id="dataset-selection-label" class="text-xs font-semibold app-text-primary truncate">Loading datasets...</span>
+                </span>
+                <span id="dataset-availability-count" class="text-[10px] app-text-muted font-mono shrink-0">Loading</span>
+              </summary>
+              <div id="dataset-picker-options" class="absolute left-0 top-full mt-1 w-full sm:w-[390px] max-h-80 overflow-y-auto dcs-panel border app-border rounded-xl shadow-xl p-2 space-y-1"></div>
+            </details>
+            <p id="dataset-scope-note" class="text-[10px] app-text-muted mt-1.5 px-1">Answers are retrieved from the selected dataset only.</p>
+          </div>
+
+          <!-- 4 Menu Pill Cards Underneath Search Bar -->
+          <div id="hero-menu-chips" class="flex flex-wrap items-center justify-center gap-3 pt-6 w-full max-w-2xl">
+            <button class="menu-shortcut-btn pro-btn-secondary px-4 py-2.5 rounded-2xl text-xs font-semibold flex items-center gap-2 transition group shadow-sm cursor-pointer" data-target-tab="graph" data-context-label="Process Graph">
+              <i data-lucide="network" class="w-4 h-4 group-hover:scale-110 transition"></i>
+              <span>Process Graph</span>
+            </button>
+            <button class="menu-shortcut-btn pro-btn-secondary px-4 py-2.5 rounded-2xl text-xs font-semibold flex items-center gap-2 transition group shadow-sm cursor-pointer" data-target-tab="quarantine" data-context-label="Data Ops & HITL">
+              <i data-lucide="shield-alert" class="w-4 h-4 group-hover:scale-110 transition"></i>
+              <span>Data Ops &amp; HITL</span>
+            </button>
+            <button class="menu-shortcut-btn pro-btn-secondary px-4 py-2.5 rounded-2xl text-xs font-semibold flex items-center gap-2 transition group shadow-sm cursor-pointer" data-target-tab="telemetry" data-context-label="Telemetry & Push">
+              <i data-lucide="activity" class="w-4 h-4 group-hover:scale-110 transition"></i>
+              <span>Telemetry &amp; Push</span>
+            </button>
+          </div>
+
+          <!-- Connected asset suggestions are loaded from the live asset catalog. -->
+          <div class="flex flex-wrap items-center justify-center gap-2 pt-4 max-w-3xl" id="hero-sample-chips" aria-label="Connected plant assets">
+          </div>
+
+        </div>
+
+        <!-- Sticky Bottom Search Bar Container (Pinned to Viewport Bottom in Chat Mode) -->
+        <div id="sticky-bottom-bar" class="hidden shrink-0 border-t app-border p-3 z-30 dcs-panel shadow-2xl backdrop-blur-md sticky bottom-0 w-full">
+          <div class="max-w-4xl mx-auto" id="sticky-bar-mount">
+            <!-- Search bar moves here dynamically during chat mode -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- TAB 2: TOPOLOGICAL KNOWLEDGE GRAPH (Rich Full-Height Canvas)     -->
+      <!-- ================================================================ -->
+      <div id="tab-graph" class="tab-content flex-1 p-6 md:p-8 overflow-y-auto space-y-4">
+        <div class="dcs-panel p-6 space-y-4 max-w-6xl mx-auto border app-border shadow-sm">
+          
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 pb-3 border-b app-border">
+            <div>
+              <h3 class="text-lg font-bold app-text-primary flex items-center gap-2">
+                <i data-lucide="network" class="w-5 h-5"></i> Topological Plant Knowledge Graph
+              </h3>
+              <p class="text-xs app-text-muted">
+                Trace one asset at a time. Solid arrows show process flow; dashed arrows show references from source to target.
+              </p>
+              <div class="mt-3 flex flex-wrap items-center gap-2">
+                <label for="graph-asset-select" class="text-xs font-semibold app-text-secondary">Trace asset</label>
+                <select id="graph-asset-select" class="dcs-input rounded-lg px-3 py-2 text-xs app-text-primary min-w-64"></select>
+              </div>
+            </div>
+            
+            <!-- Graph Legend -->
+            <div class="flex flex-wrap items-center gap-3 text-xs font-mono">
+              <span class="flex items-center gap-1.5 app-text-secondary"><span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span> Asset</span>
+              <span class="flex items-center gap-1.5 app-text-secondary"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> Parameter</span>
+              <span class="flex items-center gap-1.5 app-text-secondary"><span class="w-3 h-3 rounded-full bg-slate-400 inline-block"></span> Document</span>
+              <span class="app-text-muted">Arrow: source &rarr; target</span>
+            </div>
+          </div>
+
+          <!-- Interactive SVG Canvas -->
+          <div class="relative w-full h-[580px] rounded-2xl border app-border overflow-hidden" id="graph-canvas-container" style="background: var(--canvas-bg);">
+            <svg id="graph-svg" viewBox="0 0 1240 640" class="w-full h-full cursor-grab">
+              <!-- Rendered via JS -->
+            </svg>
+
+            <!-- Floating Node Inspector Drawer -->
+            <div id="graph-node-inspector" class="absolute bottom-4 right-4 w-84 dcs-panel p-5 border app-border shadow-xl space-y-2 hidden">
+              <div class="flex justify-between items-start">
+                <h5 class="text-sm font-bold app-text-primary" id="inspector-title">GA-1201A</h5>
+                <span class="text-[10px] px-2 py-0.5 rounded pro-badge font-mono font-semibold" id="inspector-badge">Asset</span>
+              </div>
+              <p class="text-xs app-text-secondary" id="inspector-desc">Hexane Feed Pump A</p>
+              <div class="text-[11px] app-text-muted pt-2 border-t app-border space-y-1.5" id="inspector-details">
+                <!-- Injected via JS -->
+              </div>
+              <div class="text-[11px] app-text-muted pt-2 border-t app-border space-y-1.5" id="inspector-relations"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- TAB 3: INDUSTRIAL DATA OPS & HITL QUARANTINE                     -->
+      <!-- ================================================================ -->
+      <div id="tab-quarantine" class="tab-content flex-1 p-6 md:p-8 overflow-y-auto space-y-6">
+        
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="pro-card p-5 space-y-1 shadow-sm">
+            <div class="text-xs font-semibold app-text-muted">Total Plant Data Sources</div>
+            <div class="text-3xl font-extrabold app-text-primary font-mono" id="kpi-total-sources">0</div>
+            <div class="text-[11px] app-text-muted">P&IDs, SOPs, Historian, SAP PM</div>
+          </div>
+          <div class="pro-card p-5 space-y-1 shadow-sm">
+            <div class="text-xs font-semibold app-text-muted">Non-quarantined sources</div>
+            <div class="text-3xl font-extrabold app-text-primary font-mono" id="kpi-clean-chunks">0</div>
+            <div class="text-[11px] app-text-muted">Ready for retrieval</div>
+          </div>
+          <div class="pro-card p-5 space-y-1 shadow-sm">
+            <div class="text-xs font-semibold app-text-muted">Quarantined Conflicts</div>
+            <div class="text-3xl font-extrabold app-text-primary font-mono" id="kpi-quarantined">0</div>
+            <div class="text-[11px] app-text-muted">Blocked from AI Indexing</div>
+          </div>
+          <div class="pro-card p-5 space-y-1 shadow-sm">
+            <div class="text-xs font-semibold app-text-muted">Data Health Score</div>
+            <div class="text-3xl font-extrabold app-text-primary font-mono" id="kpi-health-score">0%</div>
+            <div class="text-[11px] app-text-muted">Zero Hallucination Gate</div>
+          </div>
+        </div>
+
+        <!-- Conflict Quarantine Table -->
+        <div class="dcs-panel p-6 space-y-4 border app-border shadow-sm">
+          <div class="flex justify-between items-center pb-3 border-b app-border">
+            <div>
+              <h4 class="text-base font-bold app-text-primary flex items-center gap-2">
+                <i data-lucide="shield-alert" class="w-5 h-5"></i> Human-In-The-Loop (HITL) Conflict Quarantine Gate
+              </h4>
+              <p class="text-xs app-text-muted">
+                Rule-based deterministic checks isolate cross-document parameter mismatches until verified by an authorized SME.
+              </p>
+            </div>
+            <button id="refresh-quarantine-btn" class="text-xs px-3.5 py-1.5 pro-btn-secondary rounded-lg font-medium flex items-center gap-1.5 transition cursor-pointer shadow-sm">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs app-text-secondary">
+              <thead class="app-subtle-bg app-text-muted uppercase tracking-wider text-[11px] border-b app-border">
+                <tr>
+                  <th class="p-3">Conflict ID</th>
+                  <th class="p-3">Source & Reference</th>
+                  <th class="p-3">Conflict Type</th>
+                  <th class="p-3">Severity</th>
+                  <th class="p-3">Issue Description</th>
+                  <th class="p-3">Status</th>
+                  <th class="p-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="quarantine-tbody" class="divide-y" style="border-color: var(--border-subtle);">
+                <!-- Dynamically populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- TAB 4: LIVE TELEMETRY & EVENT-DRIVEN PROACTIVE PUSH              -->
+      <!-- ================================================================ -->
+      <div id="tab-telemetry" class="tab-content flex-1 p-6 md:p-8 overflow-y-auto space-y-6">
+        
+        <!-- Sensor Selector Toolbar -->
+        <div class="dcs-panel p-4 rounded-2xl border app-border flex flex-wrap items-center justify-between gap-3 shadow-sm">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-semibold uppercase tracking-wider app-text-muted flex items-center gap-1.5 mr-1">
+              <i data-lucide="cpu" class="w-4 h-4"></i> Simulated instrument tags:
+            </span>
+            <div class="flex flex-wrap gap-1.5" id="telemetry-sensor-chips">
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="toggle-stream-btn" type="button" onclick="window.toggleTelemetryStream && window.toggleTelemetryStream()" class="px-3 py-1.5 rounded-xl text-xs font-medium pro-btn-secondary transition flex items-center gap-1.5 shadow-sm cursor-pointer">
+              <i data-lucide="play" class="w-3.5 h-3.5"></i> <span id="stream-toggle-label">Start Live Feed</span>
+            </button>
+          </div>
+        </div>
+        <p id="telemetry-source-note" class="text-xs app-text-muted">No DCS or historian connection is configured; values on this view are simulator data.</p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Telemetry Gauge & Controls (5 cols) -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="dcs-panel p-6 space-y-5 border app-border shadow-sm">
+              <div class="flex justify-between items-center pb-3 border-b app-border">
+                <div>
+                  <h4 class="text-sm font-bold app-text-primary flex items-center gap-2" id="telemetry-sensor-title">
+                    <i data-lucide="activity" class="w-4 h-4"></i> Select a telemetry tag
+                  </h4>
+                    <p class="text-xs app-text-muted" id="telemetry-sensor-desc">Telemetry limits from the connected asset registry</p>
+                </div>
+                <span id="telemetry-live-status-pill" class="px-3 py-1 rounded-full text-xs font-mono font-bold pro-badge">
+                  STANDBY (Ready)
+                </span>
+              </div>
+
+              <!-- Big DCS Gauge Display -->
+              <div class="dcs-card rounded-2xl p-7 text-center border app-border space-y-2">
+                <div class="text-xs app-text-muted uppercase tracking-wider font-semibold font-mono" id="telemetry-param-label">Selected parameter</div>
+                <div class="text-6xl font-mono font-extrabold app-text-primary tracking-tight" id="live-pressure-val">--</div>
+                <div class="text-sm font-mono app-text-muted font-medium" id="live-pressure-unit">unit</div>
+
+                <div class="pt-5 grid grid-cols-3 gap-2 text-xs border-t app-border text-left font-mono">
+                  <div>
+                    <div class="app-text-muted">Normal</div>
+                    <div class="app-text-primary font-bold" id="thresh-normal-val">Not specified</div>
+                  </div>
+                  <div>
+                    <div class="app-text-muted">Pre-Trip</div>
+                    <div class="app-text-primary font-bold" id="thresh-warn-val">Not specified</div>
+                  </div>
+                  <div>
+                    <div class="app-text-muted">Trip PSLL</div>
+                    <div class="app-text-primary font-bold" id="thresh-trip-val">Not specified</div>
+                  </div>
+                </div>
+                <p id="telemetry-source-ref" class="pt-3 text-[10px] app-text-muted text-left">Source reference appears when a sensor is selected.</p>
+              </div>
+
+              <!-- Live Oscilloscope Strip-Chart Display -->
+              <div class="dcs-card rounded-2xl p-4 border app-border space-y-2">
+                <div class="flex justify-between items-center text-xs font-mono">
+                  <span class="app-text-muted flex items-center gap-1.5" id="telemetry-chart-title">
+                    <span id="telemetry-live-dot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+                    Waveform Monitor
+                  </span>
+                  <span id="chart-rate-label" class="text-[10px] app-text-secondary font-mono font-bold">STANDBY (Waiting for Simulation)</span>
+                </div>
+                <div class="relative w-full h-36 rounded-xl overflow-hidden bg-slate-950/70 border app-border">
+                  <canvas id="telemetry-live-chart" width="500" height="144" class="w-full h-full"></canvas>
+                </div>
+                <div class="flex justify-between items-center text-[10px] font-mono app-text-muted px-1">
+                  <span>-30s</span>
+                  <span class="flex items-center gap-2 app-text-secondary">
+                    <span id="legend-normal-text">&mdash; Normal</span>
+                    <span id="legend-warn-text">&mdash; Alarm</span>
+                    <span id="legend-trip-text">&mdash; Trip</span>
+                  </span>
+                  <span>Now (Live)</span>
+                </div>
+              </div>
+
+              <!-- Controls -->
+              <div class="space-y-2.5">
+                <button type="button" id="trigger-anomaly-btn" class="w-full pro-btn-primary py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer active:scale-[0.99] shadow-sm">
+                  <i data-lucide="alert-octagon" class="w-4 h-4"></i> Simulate selected sensor anomaly
+                </button>
+                <div class="flex gap-2">
+                  <button type="button" id="step-sim-btn" class="flex-1 pro-btn-secondary py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer active:scale-[0.98]">
+                    Advance Step &rarr;
+                  </button>
+                  <button type="button" id="reset-sim-btn" class="flex-1 pro-btn-secondary py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer active:scale-[0.98]">
+                    Reset sensor
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Proactive Push Drawer (7 cols) -->
+          <div class="lg:col-span-7 space-y-4">
+            <div class="dcs-panel p-6 space-y-4 border app-border shadow-sm">
+              <div class="flex justify-between items-center pb-3 border-b app-border">
+                <h4 class="text-sm font-bold app-text-primary flex items-center gap-2">
+                  <i data-lucide="bell-ring" class="w-4 h-4"></i> Event-Driven Proactive Knowledge Push
+                </h4>
+                <span class="text-xs app-text-muted font-medium">Preemptive Advisory</span>
+              </div>
+
+              <!-- Proactive Advisory Box -->
+              <div id="proactive-alert-box" class="p-6 rounded-2xl dcs-card border app-border app-text-muted text-xs text-center">
+                <p class="py-12">Select a sensor or dataset parameter to view its operating threshold and linked failure-memory references.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- SME Resolution Modal -->
+  <div id="sme-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="dcs-panel w-full max-w-md p-6 rounded-2xl border app-border shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b app-border">
+        <h4 class="text-sm font-bold app-text-primary" id="modal-title">Subject Matter Expert (SME) Review</h4>
+        <button onclick="closeModal()" class="app-text-muted hover:app-text-primary"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="text-xs app-text-secondary leading-relaxed" id="modal-desc">Reviewing conflict...</div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block app-text-secondary font-semibold mb-1">SME Full Name & Sign-off</label>
+          <input type="text" id="modal-sme-name" class="w-full dcs-input rounded-lg p-2.5 app-text-primary" value="Ir. Budi Santoso (Lead Reliability)" />
+        </div>
+        <div>
+          <label class="block app-text-secondary font-semibold mb-1">Engineering Justification Notes</label>
+          <textarea id="modal-notes" class="w-full dcs-input rounded-lg p-2.5 app-text-primary h-20" placeholder="State technical reason for decision..."></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-2 pt-2 border-t app-border">
+        <button id="modal-cancel-btn" class="px-4 py-2 dcs-card hover:bg-slate-500/10 app-text-primary rounded-lg text-xs font-semibold border app-border">Cancel</button>
+        <button id="modal-reject-btn" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-semibold">Reject & Purge</button>
+        <button id="modal-approve-btn" class="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-semibold">Approve for Vector DB</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================== -->
+  <!-- 3. P&ID DRAWING & SCHEMATIC VALIDATOR MODAL                            -->
+  <!-- ====================================================================== -->
+  <div id="pid-validator-modal" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="dcs-panel w-full max-w-4xl p-6 rounded-2xl border app-border shadow-2xl space-y-5 my-8 max-h-[92vh] flex flex-col">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 border-b app-border">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-amber-500 font-bold">
+            <i data-lucide="file-check-2" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h4 class="text-sm md:text-base font-bold app-text-primary flex items-center gap-2">
+              P&amp;ID Schematic &amp; Drawing Validator
+              <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-500 font-mono font-bold">Golden Master Audit</span>
+            </h4>
+            <p class="text-[11px] app-text-muted">
+              Compares junior engineer drawings against Senior PE Standard: <strong>TJC-LLD-PID-1201 Rev 2.0</strong> &amp; <strong>SEQ-1201 Rev 3.0</strong>
+            </p>
+          </div>
+        </div>
+        <button id="close-pid-validator-btn" class="app-text-muted hover:app-text-primary p-1.5 rounded-lg hover:bg-slate-500/10">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Controls & Input Area -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div class="space-y-1.5">
+          <label class="font-semibold app-text-secondary">Drawing Title / Scope</label>
+          <input type="text" id="pid-drawing-title" class="w-full dcs-input rounded-xl p-2.5 app-text-primary" value="Hexane Feed Pump GA-1201A/B Schematic Draft" />
+        </div>
+        <div class="space-y-1.5">
+          <label class="font-semibold app-text-secondary">Draft Author</label>
+          <input type="text" id="pid-drawing-author" class="w-full dcs-input rounded-xl p-2.5 app-text-primary" value="Junior Process Engineer" />
+        </div>
+        <div class="flex items-end gap-2">
+          <button id="load-sample-pid-btn" class="flex-1 pro-btn-secondary app-text-primary py-2.5 px-3 rounded-xl font-semibold text-center transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer" title="Load Junior Engineer Sample Drawing">
+            <i data-lucide="file-code" class="w-4 h-4"></i>
+            <span>Load Junior Draft</span>
+          </button>
+          <button id="run-pid-audit-btn" class="flex-1 pro-btn-primary font-bold py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+            <span>Audit P&amp;ID</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Audit Results Body (Scrollable) -->
+      <div id="pid-audit-results" class="flex-1 overflow-y-auto space-y-4 pr-1">
+        <div class="p-8 text-center text-xs app-text-muted dcs-card rounded-xl border app-border space-y-2">
+          <i data-lucide="file-search" class="w-10 h-10 mx-auto text-slate-400 opacity-60"></i>
+          <p class="font-medium">Click <strong>"Load Junior Draft"</strong> and then <strong>"Audit P&amp;ID"</strong> to check whether your technical drawing complies with Chandra Asri Senior Process Engineering standards.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====================================================================== -->
+  <!-- 3B. MULTIMODAL DOCUMENT & P&ID UPLOAD MODAL                            -->
+  <!-- ====================================================================== -->
+  <div id="upload-dialog-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto" style="display: none;">
+    <div class="dcs-panel w-full max-w-2xl p-6 rounded-2xl border app-border shadow-2xl space-y-5 my-8 max-h-[92vh] flex flex-col">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 border-b app-border">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl pro-badge flex items-center justify-center font-bold">
+            <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h4 class="text-base font-bold app-text-primary flex items-center gap-2">
+              Upload Documents &amp; Technical Drawings to Ask Questions
+              <span class="text-[10px] px-2 py-0.5 rounded pro-badge font-mono font-semibold">Multimodal AI</span>
+            </h4>
+            <p class="text-[11px] app-text-muted">
+              Upload a P&amp;ID file, OPL inspection photo, or PDF document to compare against the Train A Golden Master.
+            </p>
+          </div>
+        </div>
+        <button onclick="window.closeUploadModal && window.closeUploadModal()" class="app-text-muted hover:app-text-primary p-1.5 rounded-lg hover:bg-slate-500/10">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="flex-1 overflow-y-auto space-y-4 text-xs pr-1">
+        
+        <!-- Drag & Drop / Click Zone -->
+        <label for="modal-file-upload-input" class="flex flex-col items-center justify-center p-7 border-2 border-dashed app-border hover:border-sky-500 rounded-2xl bg-sky-500/5 hover:bg-sky-500/10 cursor-pointer transition text-center group">
+          <div class="w-14 h-14 rounded-2xl bg-sky-500/15 flex items-center justify-center text-sky-400 mb-3 group-hover:scale-110 transition">
+            <i data-lucide="file-up" class="w-7 h-7"></i>
+          </div>
+          <span class="text-sm font-bold app-text-primary">Click to select a file from your computer</span>
+          <span class="text-xs text-sky-400 mt-1">or drag and drop a file into this box</span>
+          <span class="text-[10px] app-text-muted mt-2 font-mono">Supported formats: PDF, PNG, JPG, JPEG (Max. 50 MB)</span>
+          <input type="file" id="modal-file-upload-input" class="sr-only" accept="image/*,.pdf,.doc,.docx" />
+        </label>
+
+        <!-- Selected File Status Box (Initially hidden) -->
+        <div id="modal-selected-file-box" class="hidden p-3.5 rounded-xl border border-sky-500/40 bg-sky-500/10 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div id="modal-file-icon" class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center font-mono font-bold text-xs">
+              DOC
+            </div>
+            <div>
+              <div class="font-bold text-xs app-text-primary" id="modal-file-name">dokumen.pdf</div>
+              <div class="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                <i data-lucide="check" class="w-3 h-3"></i> File is ready to ask the AI about
+              </div>
+            </div>
+          </div>
+          <button type="button" onclick="window.clearModalFile && window.clearModalFile()" class="text-slate-400 hover:text-red-400 p-1 text-xs">Remove</button>
+        </div>
+
+        <!-- 1-Click Sample Plant Files for Quick Evaluation -->
+        <div class="dcs-card p-4 rounded-xl border app-border space-y-2.5">
+          <div class="flex items-center justify-between pb-1 border-b app-border">
+            <span class="font-bold app-text-primary text-[11px] flex items-center gap-1.5">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i> Sample Plant Files for Quick Evaluation:
+            </span>
+            <span class="text-[10px] text-sky-400 font-mono">One-click load</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <button type="button" onclick="window.loadSampleFileToModal('pid')" class="p-2.5 rounded-lg dcs-panel border app-border hover:border-sky-500 text-left transition flex flex-col justify-between">
+              <div>
+                <div class="font-bold text-sky-400 text-[11px]">Junior P&amp;ID Draft</div>
+                <div class="text-[10px] app-text-muted mt-0.5">TJC-LLD-PID-1201 Draft Rev 0.1</div>
+              </div>
+              <span class="text-[9px] text-emerald-400 font-mono mt-2 flex items-center gap-1"><i data-lucide="plus" class="w-2.5 h-2.5"></i> Load File</span>
+            </button>
+            <button type="button" onclick="window.loadSampleFileToModal('seal')" class="p-2.5 rounded-lg dcs-panel border app-border hover:border-emerald-500 text-left transition flex flex-col justify-between">
+              <div>
+                <div class="font-bold text-emerald-400 text-[11px]">OPL-01 Seal Inspection</div>
+                <div class="text-[10px] app-text-muted mt-0.5">API Plan 11/62 Flush Photo</div>
+              </div>
+              <span class="text-[9px] text-emerald-400 font-mono mt-2 flex items-center gap-1"><i data-lucide="plus" class="w-2.5 h-2.5"></i> Load File</span>
+            </button>
+            <button type="button" onclick="window.loadSampleFileToModal('datasheet')" class="p-2.5 rounded-lg dcs-panel border app-border hover:border-purple-500 text-left transition flex flex-col justify-between">
+              <div>
+                <div class="font-bold text-purple-400 text-[11px]">GA-1201A Datasheet</div>
+                <div class="text-[10px] app-text-muted mt-0.5">Hexane Pump (30 kW, API 610)</div>
+              </div>
+              <span class="text-[9px] text-emerald-400 font-mono mt-2 flex items-center gap-1"><i data-lucide="plus" class="w-2.5 h-2.5"></i> Load File</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Question Formulation -->
+        <div class="space-y-1.5">
+          <label class="block font-semibold app-text-secondary">Question or Review Instructions for the AI:</label>
+          <input type="text" id="modal-upload-query" class="w-full dcs-input rounded-xl p-3 app-text-primary text-xs" value="Compare and verify this technical document/drawing against the Golden Master P&amp;ID TJC-LLD-PID-1201 and SEQ-1201 standards." placeholder="Enter a question about this file..." />
+          <div class="flex flex-wrap gap-1.5 pt-1">
+            <button type="button" onclick="document.getElementById('modal-upload-query').value = this.innerText" class="text-[10px] px-2 py-0.5 rounded-md dcs-card app-border app-text-muted hover:text-sky-400 transition">Audit design discrepancies and HAZOP hazards</button>
+            <button type="button" onclick="document.getElementById('modal-upload-query').value = this.innerText" class="text-[10px] px-2 py-0.5 rounded-md dcs-card app-border app-text-muted hover:text-sky-400 transition">Compare against the P&amp;ID Rev 2.0 Golden Master</button>
+            <button type="button" onclick="document.getElementById('modal-upload-query').value = this.innerText" class="text-[10px] px-2 py-0.5 rounded-md dcs-card app-border app-text-muted hover:text-sky-400 transition">Explain compliance with API 610 and Seal Plan 11</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex justify-end gap-2 pt-3 border-t app-border">
+        <button type="button" onclick="window.closeUploadModal && window.closeUploadModal()" class="px-4 py-2.5 dcs-card hover:bg-slate-500/10 app-text-primary rounded-xl text-xs font-semibold border app-border">
+          Cancel
+        </button>
+        <button type="button" id="modal-submit-upload-btn" onclick="window.submitModalUpload && window.submitModalUpload()" class="px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-md shadow-sky-600/25">
+          <i data-lucide="send" class="w-4 h-4"></i>
+          <span>Upload &amp; Ask AI &rarr;</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====================================================================== -->
+  <!-- 4. DATASET 01 TECHNICAL KEYWORDS & QUESTION GUIDE MODAL                -->
+  <!-- ====================================================================== -->
+  <div id="keyword-guide-modal" onclick="if(event.target === this) window.closeKeywordGuideModal()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto" style="display: none;">
+    <div class="guide-modal-card w-full max-w-3xl p-6 rounded-2xl border shadow-2xl space-y-5 my-8 max-h-[90vh] flex flex-col">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 border-b app-border">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg guide-tag-badge flex items-center justify-center font-bold">
+            <i data-lucide="book-marked" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h4 class="text-base font-bold guide-heading flex items-center gap-2">
+              Technical Keywords &amp; Sample Questions
+              <span class="text-[10px] px-2 py-0.5 rounded guide-tag-badge font-mono font-bold">Dataset 01</span>
+            </h4>
+            <p class="text-[11px] guide-meta">
+              GA-1201A Hexane Feed Pump &bull; Polyethylene Train A &bull; PT Chandra Asri Pacific Tbk
+            </p>
+          </div>
+        </div>
+        <button type="button" id="close-guide-modal-btn" onclick="window.closeKeywordGuideModal && window.closeKeywordGuideModal()" class="guide-action-btn p-2 rounded-xl transition cursor-pointer" title="Close Guide (Esc)">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="flex-1 overflow-y-auto space-y-5 text-xs pr-1">
+        
+        <!-- Section A: ISA-5.1 Tags & Sample Questions -->
+        <div class="guide-sub-card p-4 rounded-xl border space-y-3">
+          <div class="flex items-center justify-between pb-1 border-b app-border">
+            <h5 class="font-bold guide-heading flex items-center gap-2 text-sm">
+              <i data-lucide="tag" class="w-4 h-4"></i> Instrument Tags &amp; Sample Questions
+            </h5>
+            <span class="text-[10px] guide-meta font-mono">Click "Ask" to submit a question</span>
+          </div>
+          
+          <div class="space-y-2 text-[11px]">
+            <!-- Tag 1: GA-1201A -->
+            <div class="guide-item-card p-3 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2 font-mono">
+                  <span class="guide-tag-badge px-2 py-0.5 rounded font-bold">GA-1201A</span>
+                  <span class="guide-meta text-[11px]">Main Duty Pump (30 kW, 2970 rpm, API 610 OH2)</span>
+                </div>
+                <div class="guide-prompt-text text-xs mt-1 font-medium italic">"What are the technical specifications and operating conditions of duty pump GA-1201A?"</div>
+              </div>
+              <button type="button" onclick="window.askFromGuide && window.askFromGuide(this.getAttribute('data-ask'))" class="guide-ask-btn guide-action-btn shrink-0 self-end sm:self-center px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer" data-ask="What are the technical specifications and operating conditions of duty pump GA-1201A?">Ask &rarr;</button>
+            </div>
+
+            <!-- Tag 2: GA-1201B -->
+            <div class="guide-item-card p-3 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2 font-mono">
+                  <span class="guide-tag-badge px-2 py-0.5 rounded font-bold">GA-1201B</span>
+                  <span class="guide-meta text-[11px]">Automatic Standby Pump (EFF-5 Signal Auto-Cut-in)</span>
+                </div>
+                <div class="guide-prompt-text text-xs mt-1 font-medium italic">"How does standby pump GA-1201B auto-start when pump A trips?"</div>
+              </div>
+              <button type="button" onclick="window.askFromGuide && window.askFromGuide(this.getAttribute('data-ask'))" class="guide-ask-btn guide-action-btn shrink-0 self-end sm:self-center px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer" data-ask="How does standby pump GA-1201B auto-start when pump A trips?">Ask &rarr;</button>
+            </div>
+
+            <!-- Tag 3: PT-1201 & PSLL-1201 -->
+            <div class="guide-item-card p-3 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2 font-mono">
+                  <span class="guide-tag-badge px-2 py-0.5 rounded font-bold">PT-1201</span>
+                  <span class="guide-tag-badge px-2 py-0.5 rounded font-bold">PSLL-1201</span>
+                  <span class="guide-meta text-[11px]">Suction Header Pressure &amp; 2oo3 Interlock (&lt; 0.50 barg)</span>
+                </div>
+                <div class="guide-prompt-text text-xs mt-1 font-medium italic">"Why does the PSLL-1201 trip interlock use 2oo3 voting logic at pressures below 0.50 barg?"</div>
+              </div>
+              <button type="button" onclick="window.askFromGuide && window.askFromGuide(this.getAttribute('data-ask'))" class="guide-ask-btn guide-action-btn shrink-0 self-end sm:self-center px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer" data-ask="Why does the PSLL-1201 trip interlock use 2oo3 voting logic at pressures below 0.50 barg?">Ask &rarr;</button>
+            </div>
+
+            <!-- Tag 4: FV-1201 -->
+            <div class="guide-item-card p-3 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2 font-mono">
+                  <span class="guide-tag-badge px-2 py-0.5 rounded font-bold">FV-1201</span>
+                  <span class="guide-meta text-[11px]">Recycle Minimum-Flow Control Valve (Fail-Open, 9 m3/h)</span>
+                </div>
+                <div class="guide-prompt-text text-xs mt-1 font-medium italic">"How does fail-open valve FV-1201 maintain the hexane pump's minimum bypass flow?"</div>
+              </div>
+              <button type="button" onclick="window.askFromGuide && window.askFromGuide(this.getAttribute('data-ask'))" class="guide-ask-btn guide-action-btn shrink-0 self-end sm:self-center px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer" data-ask="How does fail-open valve FV-1201 maintain the hexane pump's minimum bypass flow?">Ask &rarr;</button>
+            </div>
+
+            <!-- Tag 5: VT-1201 & VSHH-1201 -->
+            <div class="guide-item-card p-3 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2 font-mono">
+                  <span class="guide-tag-badge px-2 py-0.5 rounded font-bold">VT-1201</span>
+                  <span class="guide-tag-badge px-2 py-0.5 rounded font-bold">VSHH-1201</span>
+                  <span class="guide-meta text-[11px]">Bearing Vibration Transmitter &amp; Trip (&gt; 7.1 mm/s RMS)</span>
+                </div>
+                <div class="guide-prompt-text text-xs mt-1 font-medium italic">"What are the 4.5 mm/s alarm and 7.1 mm/s VSHH-1201 hardware trip vibration limits for pump GA-1201A?"</div>
+              </div>
+              <button type="button" onclick="window.askFromGuide && window.askFromGuide(this.getAttribute('data-ask'))" class="guide-ask-btn guide-action-btn shrink-0 self-end sm:self-center px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer" data-ask="What are the 4.5 mm/s alarm and 7.1 mm/s VSHH-1201 hardware trip vibration limits for pump GA-1201A?">Ask &rarr;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section B: Seven One Point Lesson (OPL 01-07) Documents -->
+        <div class="guide-sub-card p-4 rounded-xl border space-y-3">
+          <div class="flex items-center justify-between pb-1 border-b app-border">
+            <h5 class="font-bold guide-heading flex items-center gap-2 text-sm">
+              <i data-lucide="book-open" class="w-4 h-4"></i> All Seven One Point Lesson (OPL 01-07) Documents
+            </h5>
+            <span class="text-[10px] guide-meta font-mono">Complete Field Collection</span>
+          </div>
+
+          <div class="space-y-2.5 text-[11px]">
+            <!-- OPL 01 -->
+            <div class="guide-item-card p-3 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2 font-mono">
+                  <span class="guide-tag-badge px-2 py-0.5 rounded font-bold">OPL-GA-1201A-01</span>
+                  <span class="guide-heading font-semibold">Mechanical Seal Plan 11/62 Flush &amp; Leak Inspection</span>
+                </div>
+                <div class="guide-desc text-[11px] mt-0.5">Restriksi orifice RO-1201, PDI-1201 dP &gt; 1.5 bar, containment volatile hexane (-22°C flash point)</div>
+                <div class="guide-prompt-text text-xs mt-1 font-medium italic">"What is the Plan 11/62 mechanical seal flush inspection procedure, and how can hexane leaks on pump GA-1201A be prevented according to OPL-01?"</div>
+              </div>
+              <button type="button" onclick="window.askFromGuide && window.askFromGuide(this.getAttribute('data-ask'))" class="guide-ask-btn guide-action-btn shrink-0 self-end sm:self-center px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer" data-ask="What is the Plan 11/62 mechanical seal flush inspection procedure, and how can hexane leaks on pump GA-1201A be prevented according to OPL-01?">Ask &rarr;</button>
+            </div>
+
+            <!-- OPL 02 -->
+            <div class="guide-item-card p-3 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2 font-mono">
+                  <span class="guide-tag-badge px-2 py-0.5 rounded font-bold">OPL-GA-1201A-02</span>
+                  <span class="guide-heading font-semibold">Bearing Oil Bath Level &amp; Greasing</span>
+                </div>
+                <div class="guide-desc text-[11px] mt-0.5">ISO VG 68 mineral lubricant, sight-glass level exactly 50%, underfill (&lt;30%) and overfill (&gt;70%) hazards</div>
+                <div class="guide-prompt-text text-xs mt-1 font-medium italic">"What are the ISO VG 68 oil bath bearing lubrication standard and constant-level oiler level for pump GA-1201A according to OPL-02?"</div>
+              </div>
+              <button type="button" onclick="window.askFromGuide && window.askFromGuide(this.getAttribute('data-ask'))" class="guide-ask-btn guide-action-btn shrink-0 self-end sm:self-center px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer" data-ask="What are the ISO VG 68 oil bath bearing lubrication standard and constant-level oiler level for pump GA-1201A according to OPL-02?">Ask &rarr;</button>
+            </div>
+
+            <!-- OPL 03 -->
+            <div class="guide-item-card p-3 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2 font-mono">
+                  <span class="guide-tag-badge px-2 py-0.5 rounded font-bold">OPL-GA-1201A-03</span>
+                  <span class="guide-heading font-semibold">Pump-Motor Alignment Check (Laser)</span>
+                </div>
+                <div class="guide-desc text-[11px] mt-0.5">Angular tolerance &lt; 0.05 mm/100 mm, offset &lt; 0.05 mm, soft-foot check to eliminate vibration</div>
+                <div class="guide-prompt-text text-xs mt-1 font-medium italic">"What are the angular (&lt;0.05 mm/100 mm) and offset (&lt;0.05 mm) tolerances for laser alignment of pump GA-1201A according to OPL-03?"</div>
+              </div>
+              <button type="button" onclick="window.askFromGuide && window.askFromGuide(this.getAttribute('data-ask'))" class="guide-ask-btn guide-action-btn shrink-0 self-end sm:self-center px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer" data-ask="What are the angular (<0.05 mm/100 mm) and offset (<0.05 mm) tolerances for laser alignment of pump GA-1201A according to OPL-03?">Ask &rarr;</button>
+            </div>
+
+            <!-- OPL 04 -->
+            <div class="guide-item-card p-3 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2 font-mono">
+                  <span class="guide-tag-badge px-2 py-0.5 rounded font-bold">OPL-GA-1201A-04</span>
+                  <span class="guide-heading font-semibold">Suction Strainer ST-1201 Cleaning &amp; DP Check</span>
+                </div>
+                <div class="guide-desc text-[11px] mt-0.5">60-mesh temporary conical strainer, dP limit &lt; 0.20 bar, vapor cavitation prevention, and incident INC-2025-0814</div>
+                <div class="guide-prompt-text text-xs mt-1 font-medium italic">"What is the ST-1201 suction strainer cleaning procedure and differential pressure limit to prevent cavitation according to OPL-04?"</div>
+              </div>
+              <button type="button" onclick="window.askFromGuide && window.askFromGuide(this.getAttribute('data-ask'))" class="guide-ask-btn guide-action-btn shrink-0 self-end sm:self-center px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer" data-ask="What is the ST-1201 suction strainer cleaning procedure and differential pressure limit to prevent cavitation according to OPL-04?">Ask &rarr;</button>
+            </div>
+
+            <!-- OPL 05 -->
+            <div class="guide-item-card p-3 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2 font-mono">
+                  <span class="guide-tag-badge px-2 py-0.5 rounded font-bold">OPL-GA-1201A-05</span>
+                  <span class="guide-heading font-semibold">Cold Alignment vs Hot Check for Hexane Service</span>
+                </div>
+                <div class="guide-desc text-[11px] mt-0.5">Thermal growth offset +0.08 mm at the motor foot for 40°C–80°C fluid, verified by a 2-hour hot check</div>
+                <div class="guide-prompt-text text-xs mt-1 font-medium italic">"Why is a +0.08 mm thermal growth offset required for cold alignment of the hexane pump motor according to OPL-05?"</div>
+              </div>
+              <button type="button" onclick="window.askFromGuide && window.askFromGuide(this.getAttribute('data-ask'))" class="guide-ask-btn guide-action-btn shrink-0 self-end sm:self-center px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer" data-ask="Why is a +0.08 mm thermal growth offset required for cold alignment of the hexane pump motor according to OPL-05?">Ask &rarr;</button>
+            </div>
+
+            <!-- OPL 06 -->
+            <div class="guide-item-card p-3 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2 font-mono">
+                  <span class="guide-tag-badge px-2 py-0.5 rounded font-bold">OPL-GA-1201A-06</span>
+                  <span class="guide-heading font-semibold">5-Step Start-Up &amp; Priming Procedure</span>
+                </div>
+                <div class="guide-desc text-[11px] mt-0.5">Vent casing nozzle N5, Plan 11 dP &gt; 1.5 bar, open FV-1201 recycle, jog rotation, start motor</div>
+                <div class="guide-prompt-text text-xs mt-1 font-medium italic">"What are the priming procedure and five start-up steps for pump GA-1201A according to OPL-06 and interlock SEQ-1201?"</div>
+              </div>
+              <button type="button" onclick="window.askFromGuide && window.askFromGuide(this.getAttribute('data-ask'))" class="guide-ask-btn guide-action-btn shrink-0 self-end sm:self-center px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer" data-ask="What are the priming procedure and five start-up steps for pump GA-1201A according to OPL-06 and interlock SEQ-1201?">Ask &rarr;</button>
+            </div>
+
+            <!-- OPL 07 -->
+            <div class="guide-item-card p-3 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2 font-mono">
+                  <span class="guide-tag-badge px-2 py-0.5 rounded font-bold">OPL-GA-1201A-07</span>
+                  <span class="guide-heading font-semibold">Vibration Trend Monitoring &amp; Alarm Response</span>
+                </div>
+                <div class="guide-desc text-[11px] mt-0.5">VT-1201 monitoring (2.2 mm/s baseline, 4.5 mm/s alarm, 7.1 mm/s VSHH-1201 trip, 1 mm/s/week increase rule)</div>
+                <div class="guide-prompt-text text-xs mt-1 font-medium italic">"What are the normal (2.2 mm/s), alarm (4.5 mm/s), and VSHH-1201 hardware trip (7.1 mm/s) vibration limits according to OPL-07?"</div>
+              </div>
+              <button type="button" onclick="window.askFromGuide && window.askFromGuide(this.getAttribute('data-ask'))" class="guide-ask-btn guide-action-btn shrink-0 self-end sm:self-center px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer" data-ask="What are the normal (2.2 mm/s), alarm (4.5 mm/s), and VSHH-1201 hardware trip (7.1 mm/s) vibration limits according to OPL-07?">Ask &rarr;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section C: General Process Safety & P&ID Master -->
+        <div class="guide-sub-card p-4 rounded-xl border space-y-3">
+          <h5 class="font-bold guide-heading flex items-center gap-2 text-sm">
+            <i data-lucide="shield" class="w-4 h-4"></i> Process Safety &amp; P&amp;ID Engineering Topics
+          </h5>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-[11px]">
+            <div onclick="window.askFromGuide && window.askFromGuide(this.getAttribute('data-ask'))" class="guide-item-card p-3.5 rounded-lg border text-left transition cursor-pointer flex justify-between items-center group" data-ask="What are the process safety standards and SEQ-1201 interlocks in Train A?">
+              <div>
+                <div class="font-bold guide-heading text-xs">Process Safety Management</div>
+                <div class="text-[11px] guide-desc mt-0.5">OSHA 1910.119 PSM standard, -22°C LEL mitigation, and LOPA</div>
+              </div>
+              <i data-lucide="arrow-right" class="w-4 h-4 guide-meta opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition"></i>
+            </div>
+            <div onclick="window.askFromGuide && window.askFromGuide(this.getAttribute('data-ask'))" class="guide-item-card p-3.5 rounded-lg border text-left transition cursor-pointer flex justify-between items-center group" data-ask="Why did pump GA-1201A trip unexpectedly during incident INC-2025-0814?">
+              <div>
+                <div class="font-bold guide-heading text-xs">Root Cause Analysis (RCA)</div>
+                <div class="text-[11px] guide-desc mt-0.5">Incident INC-2025-0814: clogged strainer and burned seal</div>
+              </div>
+              <i data-lucide="arrow-right" class="w-4 h-4 guide-meta opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition"></i>
+            </div>
+            <div onclick="window.askFromGuide && window.askFromGuide(this.getAttribute('data-ask'))" class="guide-item-card p-3.5 rounded-lg border text-left transition cursor-pointer flex justify-between items-center group" data-ask="Show the TJC-LLD-PID-1201 P&amp;ID specifications for the hexane pump">
+              <div>
+                <div class="font-bold guide-heading text-xs">P&amp;ID Golden Master</div>
+                <div class="text-[11px] guide-desc mt-0.5">Official Senior Process Engineering drawing TJC-LLD-PID-1201 Rev 2.0</div>
+              </div>
+              <i data-lucide="arrow-right" class="w-4 h-4 guide-meta opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition"></i>
+            </div>
+            <div onclick="window.askFromGuide && window.askFromGuide(this.getAttribute('data-ask'))" class="guide-item-card p-3.5 rounded-lg border text-left transition cursor-pointer flex justify-between items-center group" data-ask="What is the NPSHa margin over NPSHr for pump GA-1201A according to the datasheet?">
+              <div>
+                <div class="font-bold guide-heading text-xs">Hydraulic Datasheet</div>
+                <div class="text-[11px] guide-desc mt-0.5">Margin NPSHa (4.1m) vs NPSHr (2.8m), flow 18 m3/h, head 75m</div>
+              </div>
+              <i data-lucide="arrow-right" class="w-4 h-4 guide-meta opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition"></i>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
